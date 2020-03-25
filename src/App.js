@@ -1,26 +1,51 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { Component } from 'react';
 import './App.css';
+import List from './components/List';
+import JobItem from './components/JobListElement';
+import JobCreationForm from './components/JobCreationForm';
+// import Timer from "./components/Timer";
+// import ResizeDemo from "./components/ResizeDemo";
+import JobsApi from "./api/JobsApi";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+    state = {
+        jobs: [],
+        isFormVisible: false,
+        loading: false,
+    };
+
+    componentDidMount = async () => {
+        this.setState({ loading: true });
+        const jobs = await JobsApi.getJobs();
+        this.setState({ jobs, loading: false });
+    };
+
+    toggleFormVisible = () => {
+        this.setState({
+            jobs: [],
+            isFormVisible: !this.state.isFormVisible,
+        })
+    };
+
+    render() {
+        return (
+            <div className="App">
+                <h1 className="App-title">
+                    Prop Drilling and State Lifting
+                </h1>
+                <button onClick={this.toggleFormVisible}>
+                    {this.state.isFormVisible ?
+                        'Hide form':
+                        'Show form'
+                    }
+                </button>
+                <div style={{display: this.state.isFormVisible ? 'block' : 'none'}}>
+                    <JobCreationForm />
+                </div>
+                <List items={this.state.jobs} itemElement={JobItem}/>
+            </div>
+        );
+    }
 }
 
 export default App;
